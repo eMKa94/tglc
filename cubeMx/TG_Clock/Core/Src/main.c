@@ -85,7 +85,7 @@ void uiTimeBaseTimerInit(void)
 
     LL_TIM_InitTypeDef timerConfig = {
         // .Autoreload = 59999,
-        .Autoreload        = 199,
+        .Autoreload        = 99,
         .ClockDivision     = LL_TIM_CLOCKDIVISION_DIV2,
         .CounterMode       = LL_TIM_COUNTERMODE_UP,
         .Prescaler         = 31,
@@ -139,9 +139,10 @@ static volatile uint8_t currentPwmLut = 0;
 
 static volatile uint8_t displayMask[4] = {0xff, 0xfF, 0xff, 0xff};
 
-static volatile uint8_t         spiIndex       = 0;
-static volatile uint8_t         pseudoPwmIndex = 0;
-static volatile uint8_t         pwmValue       = 100;
+static volatile uint8_t spiIndex       = 0;
+static volatile uint8_t pseudoPwmIndex = 0;
+static volatile uint8_t pwmValue       = 100;
+
 __attribute__((interrupt)) void TIM16_IRQHandler(void)
 {
     if (!LL_TIM_IsActiveFlag_UPDATE(TIM16))
@@ -316,6 +317,8 @@ __attribute__((interrupt)) void SPI1_IRQHandler(void)
  */
 int main(void)
 {
+    uint8_t hours   = 11;
+    uint8_t minutes = 47;
 
     /* USER CODE BEGIN 1 */
     uint16_t counter     = COUNTER_INIT_VALUE;
@@ -368,11 +371,17 @@ int main(void)
     {
         if (loopCounter == 0)
         {
-            counter++;
-            if (counter > COUNTER_MAX_VALUE)
+            minutes++;
+            if (minutes >= 60)
             {
-                counter = COUNTER_INIT_VALUE;
+                minutes = 0;
+                hours++;
+                if (hours >= 24)
+                {
+                    hours = 0;
+                }
             }
+            counter = hours * 100 + minutes;
         }
         setDisplayFourDigitNumber2(counter, pwmValue);
         if (pwmValue > 100)

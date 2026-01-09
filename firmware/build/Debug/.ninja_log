@@ -1,0 +1,16 @@
+# ninja log v5
+1	41	1767652267478682308	CMakeFiles/TG_Clock.dir/startup_stm32g030xx.s.obj	bc2ff80b019f857a
+2	75	1767652267512681688	CMakeFiles/TG_Clock.dir/Core/Src/clock_display.c.obj	c920003dd47a4a70
+1	110	1767652267544681105	CMakeFiles/TG_Clock.dir/Core/Src/sysmem.c.obj	7c6e40c5047f0d2a
+1	130	1767652267566884905	CMakeFiles/TG_Clock.dir/Core/Src/syscalls.c.obj	f2bdf1b8c3ff3fa7
+2	185	1767652267622325851	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32g0xx.c.obj	b5affc208b9d44d5
+1	186	1767652267623184246	CMakeFiles/TG_Clock.dir/Core/Src/gpio.c.obj	c5ef8b4bb3f8ab44
+1	218	1767652267655344927	CMakeFiles/TG_Clock.dir/Core/Src/stm32g0xx_it.c.obj	168d99c492fc3047
+1	221	1767652267657907289	CMakeFiles/TG_Clock.dir/Core/Src/spi.c.obj	b0799d6fdd4a4360
+77	238	1767652267672112098	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_exti.c.obj	6a20574556025646
+1	242	1767652267678758085	CMakeFiles/TG_Clock.dir/Core/Src/adc.c.obj	beca0e711309a80d
+41	243	1767652267679678646	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_utils.c.obj	925507c498af5932
+110	262	1767652267698678300	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_gpio.c.obj	cfa01984ddb4ea07
+130	280	1767652267718443733	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_adc.c.obj	b7d2edd236b81bb5
+186	307	1767652267744417918	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c.obj	f8539460a49d0af2
+187	309	1767652267747267948	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c.obj	26b30f8bf3580fcd
