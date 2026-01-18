@@ -19,9 +19,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "gpio.h"
 #include "rtc.h"
 #include "spi.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -179,9 +179,9 @@ void setDisplayFourDigitNumber2(uint16_t number, uint8_t maxPwm)
 {
     uint8_t digitValues[4];
 
-    digitValues[0] = (number >= 1000) ? (number / 1000) % 10 : 0xFF;
-    digitValues[1] = (number >= 100) ? (number / 100) % 10 : 0xFF;
-    digitValues[2] = (number >= 10) ? (number / 10) % 10 : 0xFF;
+    digitValues[0] = (number >= 1000) ? (number / 1000) % 10 : 0;
+    digitValues[1] = (number >= 100) ? (number / 100) % 10 : 0;
+    digitValues[2] = (number >= 10) ? (number / 10) % 10 : 0;
     digitValues[3] = number % 10;
 
     static const uint8_t digitPatterns[10] = {DIGIT_0, DIGIT_1, DIGIT_2, DIGIT_3, DIGIT_4,
@@ -315,52 +315,62 @@ __attribute__((interrupt)) void SPI1_IRQHandler(void)
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
-    uint8_t hours   = 11;
-    uint8_t minutes = 47;
+    /* USER CODE BEGIN 1 */
+    uint8_t hours   = 20;
+    uint8_t minutes = 39;
 
     uint16_t counter     = COUNTER_INIT_VALUE;
     uint8_t  loopCounter = 0;
     pwmValue             = 90;
-  /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    RTC_TimeTypeDef rtcTime = {0};
+    RTC_DateTypeDef rtcDate = {0};
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+    /* USER CODE END 1 */
 
-  /* SysTick_IRQn interrupt configuration */
-  NVIC_SetPriority(SysTick_IRQn, 3);
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* USER CODE BEGIN Init */
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
-  /* USER CODE END Init */
+    /* SysTick_IRQn interrupt configuration */
+    NVIC_SetPriority(SysTick_IRQn, 3);
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* USER CODE BEGIN Init */
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE END Init */
 
-  /* USER CODE END SysInit */
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_ADC1_Init();
-  MX_SPI1_Init();
-  MX_RTC_Init();
-  /* USER CODE BEGIN 2 */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END 2 */
+    /* USER CODE END SysInit */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_SPI1_Init();
+    MX_RTC_Init();
+    /* USER CODE BEGIN 2 */
+    // disable rtc write protection
+
+    rtcTime.Hours   = hours;
+    rtcTime.Minutes = minutes;
+    HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN);
+    // HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD);
+
+    /* USER CODE END 2 */
+
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
 
     dispResetHigh();
 
@@ -373,20 +383,12 @@ int main(void)
     uiTimeBaseTimerStart();
     while (1)
     {
-        if (loopCounter == 0)
-        {
-            minutes++;
-            if (minutes >= 60)
-            {
-                minutes = 0;
-                hours++;
-                if (hours >= 24)
-                {
-                    hours = 0;
-                }
-            }
-            counter = hours * 100 + minutes;
-        }
+        HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BIN);
+        HAL_RTC_GetDate(&hrtc, &rtcDate, RTC_FORMAT_BIN);
+
+        hours   = rtcTime.Hours;
+        minutes = rtcTime.Minutes;
+        counter = hours * 100 + minutes;
         setDisplayFourDigitNumber2(counter, pwmValue);
         if (pwmValue > 100)
         {
@@ -418,62 +420,62 @@ int main(void)
         updatePwmLUTs();
         swapPwmLut();
 
-    /* USER CODE END WHILE */
+        /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+        /* USER CODE BEGIN 3 */
     }
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
-  while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
-  {
-  }
+    LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+    while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
+    {
+    }
 
-  /* HSI configuration and activation */
-  LL_RCC_HSI_Enable();
-  while(LL_RCC_HSI_IsReady() != 1)
-  {
-  }
+    /* HSI configuration and activation */
+    LL_RCC_HSI_Enable();
+    while (LL_RCC_HSI_IsReady() != 1)
+    {
+    }
 
-  LL_PWR_EnableBkUpAccess();
-  /* LSE configuration and activation */
-  LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_LOW);
-  LL_RCC_LSE_Enable();
-  while(LL_RCC_LSE_IsReady() != 1)
-  {
-  }
+    LL_PWR_EnableBkUpAccess();
+    /* LSE configuration and activation */
+    LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_LOW);
+    LL_RCC_LSE_Enable();
+    while (LL_RCC_LSE_IsReady() != 1)
+    {
+    }
 
-  /* Main PLL configuration and activation */
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
-  LL_RCC_PLL_Enable();
-  LL_RCC_PLL_EnableDomain_SYS();
-  while(LL_RCC_PLL_IsReady() != 1)
-  {
-  }
+    /* Main PLL configuration and activation */
+    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
+    LL_RCC_PLL_Enable();
+    LL_RCC_PLL_EnableDomain_SYS();
+    while (LL_RCC_PLL_IsReady() != 1)
+    {
+    }
 
-  /* Set AHB prescaler*/
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
+    /* Set AHB prescaler*/
+    LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
 
-  /* Sysclk activation on the main PLL */
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
-  {
-  }
+    /* Sysclk activation on the main PLL */
+    LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+    while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+    {
+    }
 
-  /* Set APB1 prescaler*/
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
+    /* Set APB1 prescaler*/
+    LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
 
-  LL_Init1msTick(64000000);
+    LL_Init1msTick(64000000);
 
-  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(64000000);
+    /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
+    LL_SetSystemCoreClock(64000000);
 }
 
 /* USER CODE BEGIN 4 */
@@ -481,33 +483,33 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
+    /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
     while (1)
     {
     }
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t *file, uint32_t line)
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
+void assert_failed(uint8_t* file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
+    /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+    /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

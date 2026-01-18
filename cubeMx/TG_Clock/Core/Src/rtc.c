@@ -24,6 +24,8 @@
 
 /* USER CODE END 0 */
 
+RTC_HandleTypeDef hrtc;
+
 /* RTC init function */
 void MX_RTC_Init(void)
 {
@@ -32,8 +34,39 @@ void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-  LL_RTC_InitTypeDef RTC_InitStruct = {0};
+  /* USER CODE BEGIN RTC_Init 1 */
 
+  /* USER CODE END RTC_Init 1 */
+
+  /** Initialize RTC Only
+  */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  hrtc.Init.OutPutPullUp = RTC_OUTPUT_PULLUP_NONE;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RTC_Init 2 */
+
+  /* USER CODE END RTC_Init 2 */
+
+}
+
+void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
+{
+
+  if(rtcHandle->Instance==RTC)
+  {
+  /* USER CODE BEGIN RTC_MspInit 0 */
+
+  /* USER CODE END RTC_MspInit 0 */
   if(LL_RCC_GetRTCClockSource() != LL_RCC_RTC_CLKSOURCE_LSE)
   {
     FlagStatus pwrclkchanged = RESET;
@@ -55,7 +88,7 @@ void MX_RTC_Init(void)
     }
     LL_RCC_ForceBackupDomainReset();
     LL_RCC_ReleaseBackupDomainReset();
-  LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_LOW);
+    LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_LOW);
     LL_RCC_LSE_Enable();
 
    /* Wait till LSE is ready */
@@ -70,21 +103,30 @@ void MX_RTC_Init(void)
     }
   }
 
-  /* Peripheral clock enable */
-  LL_RCC_EnableRTC();
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTC);
+    /* RTC clock enable */
+    __HAL_RCC_RTC_ENABLE();
+    __HAL_RCC_RTCAPB_CLK_ENABLE();
+  /* USER CODE BEGIN RTC_MspInit 1 */
 
-  /* USER CODE BEGIN RTC_Init 1 */
+  /* USER CODE END RTC_MspInit 1 */
+  }
+}
 
-  /* USER CODE END RTC_Init 1 */
-  RTC_InitStruct.HourFormat = LL_RTC_HOURFORMAT_24HOUR;
-  RTC_InitStruct.AsynchPrescaler = 127;
-  RTC_InitStruct.SynchPrescaler = 255;
-  LL_RTC_Init(RTC, &RTC_InitStruct);
-  /* USER CODE BEGIN RTC_Init 2 */
+void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
+{
 
-  /* USER CODE END RTC_Init 2 */
+  if(rtcHandle->Instance==RTC)
+  {
+  /* USER CODE BEGIN RTC_MspDeInit 0 */
 
+  /* USER CODE END RTC_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_RTC_DISABLE();
+    __HAL_RCC_RTCAPB_CLK_DISABLE();
+  /* USER CODE BEGIN RTC_MspDeInit 1 */
+
+  /* USER CODE END RTC_MspDeInit 1 */
+  }
 }
 
 /* USER CODE BEGIN 1 */
