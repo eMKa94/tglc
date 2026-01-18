@@ -32,7 +32,9 @@ set(MX_Application_Src
     ${CMAKE_SOURCE_DIR}/Core/Src/main.c
     ${CMAKE_SOURCE_DIR}/Core/Src/gpio.c
     ${CMAKE_SOURCE_DIR}/Core/Src/adc.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/rtc.c
     ${CMAKE_SOURCE_DIR}/Core/Src/spi.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/tim.c
     ${CMAKE_SOURCE_DIR}/Core/Src/stm32g0xx_it.c
     ${CMAKE_SOURCE_DIR}/Core/Src/sysmem.c
     ${CMAKE_SOURCE_DIR}/Core/Src/syscalls.c
@@ -48,9 +50,10 @@ set(STM32_Drivers_Src
     ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_adc.c
     ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
     ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c
+    ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rtc.c
     ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_spi.c
-    ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c
     ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_pwr.c
+    ${CMAKE_SOURCE_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c
 )
 
 # Drivers Midllewares
